@@ -1,46 +1,79 @@
 library(shiny)
+library(shinydashboard)
 library(terra)
 library(sf)
 library(randomForest)
 
 # Define UI
-ui <- fluidPage(
-  titlePanel("Image Classification for Users"),
-
-  sidebarLayout(
-    sidebarPanel(
-      # Preprocessing section
-      h3("Preprocessing"),
-      fileInput("shpFile", "Choose Shapefile or Geopackage", accept = c(".shp", ".gpkg")),
-      fileInput("tifFile", "Choose .tif File", accept = c(".tif")),
-      uiOutput("redChannel"),
-      uiOutput("greenChannel"),
-      uiOutput("blueChannel"),
-      uiOutput("nirChannel"),
-      actionButton("plotRGB", "Plot RGB"),
-      checkboxGroupInput("indices", "Select Indices",
-                         choices = c("NDVI", "EVI", "SAVI", "GCI", "OSAVI", "MSAVI", "TVI",
-                                     "DVI", "RVI", "IPVI", "GNDVI", "VARI", "TGI", "NDRE", "CIgreen",
-                                     "CIrededge", "ARVI", "MTVI", "NDWI", "NDSI", "BSI", "NBRI", "IBI")),
-      actionButton("calculateIndices", "Calculate Indices"),
-
-      # Classification section
-      h3("Classification"),
-      actionButton("trainModel", "Train Random Forest Model"),
-
-      # Postclassification section
-      h3("Postclassification"),
-      actionButton("validateModel", "Validate Model"),
-      actionButton("calculateAoA", "Calculate Area of Applicability")
-    ),
-
-    mainPanel(
-      # Outputs for each section
-      h3("Outputs"),
-      plotOutput("rgbPlot"),
-      verbatimTextOutput("preprocessOutput"),
-      verbatimTextOutput("classificationOutput"),
-      verbatimTextOutput("postclassificationOutput")
+ui <- dashboardPage(
+  dashboardHeader(title = "Image Classification"),
+  dashboardSidebar(
+    sidebarMenu(
+      menuItem("Preprocessing", tabName = "preprocessing", icon = icon("cogs")),
+      menuItem("Processing", tabName = "processing", icon = icon("play")),
+      menuItem("Postprocessing", tabName = "postprocessing", icon = icon("chart-bar"))
+    )
+  ),
+  dashboardBody(
+    tabItems(
+      # Preprocessing tab
+      tabItem(tabName = "preprocessing",
+              fluidRow(
+                box(
+                  title = "File Inputs", status = "primary", solidHeader = TRUE,
+                  fileInput("shpFile", "Choose Shapefile or Geopackage", accept = c(".shp", ".gpkg")),
+                  fileInput("tifFile", "Choose .tif File", accept = c(".tif"))
+                ),
+                box(
+                  title = "Channel Selection", status = "primary", solidHeader = TRUE,
+                  uiOutput("redChannel"),
+                  uiOutput("greenChannel"),
+                  uiOutput("blueChannel"),
+                  uiOutput("nirChannel")
+                ),
+                box(
+                  title = "Actions", status = "primary", solidHeader = TRUE,
+                  actionButton("plotRGB", "Plot RGB", class = "btn-primary")
+                ),
+                box(
+                  title = "Plot", status = "primary", solidHeader = TRUE, width = 12,
+                  plotOutput("rgbPlot")
+                )
+              )
+      ),
+      # Processing tab
+      tabItem(tabName = "processing",
+              fluidRow(
+                box(
+                  title = "Index Calculation", status = "primary", solidHeader = TRUE,
+                  checkboxGroupInput("indices", "Select Indices",
+                                     choices = c("NDVI", "EVI", "SAVI", "GCI", "OSAVI", "MSAVI", "TVI",
+                                                 "DVI", "RVI", "IPVI", "GNDVI", "VARI", "TGI", "NDRE", "CIgreen",
+                                                 "CIrededge", "ARVI", "MTVI", "NDWI", "NDSI", "BSI", "NBRI", "IBI")),
+                  actionButton("calculateIndices", "Calculate Indices", class = "btn-primary")
+                ),
+                box(
+                  title = "Indices Output", status = "primary", solidHeader = TRUE, width = 12,
+                  verbatimTextOutput("preprocessOutput")
+                )
+              )
+      ),
+      # Postprocessing tab
+      tabItem(tabName = "postprocessing",
+              fluidRow(
+                box(
+                  title = "Classification", status = "primary", solidHeader = TRUE,
+                  actionButton("trainModel", "Train Random Forest Model", class = "btn-primary"),
+                  actionButton("validateModel", "Validate Model", class = "btn-primary"),
+                  actionButton("calculateAoA", "Calculate Area of Applicability", class = "btn-primary")
+                ),
+                box(
+                  title = "Classification Output", status = "primary", solidHeader = TRUE, width = 12,
+                  verbatimTextOutput("classificationOutput"),
+                  verbatimTextOutput("postclassificationOutput")
+                )
+              )
+      )
     )
   )
 )
@@ -65,16 +98,16 @@ server <- function(input, output, session) {
 
     # Update the dropdown menus for channel selection
     output$redChannel <- renderUI({
-      selectInput("redChannel", "Red Channel", choices = layer_names)
+      selectInput("redChannel", "Red Channel", choices = layer_names, selected = layer_names[1])
     })
     output$greenChannel <- renderUI({
-      selectInput("greenChannel", "Green Channel", choices = layer_names)
+      selectInput("greenChannel", "Green Channel", choices = layer_names, selected = layer_names[2])
     })
     output$blueChannel <- renderUI({
-      selectInput("blueChannel", "Blue Channel", choices = layer_names)
+      selectInput("blueChannel", "Blue Channel", choices = layer_names, selected = layer_names[3])
     })
     output$nirChannel <- renderUI({
-      selectInput("nirChannel", "NIR Channel", choices = layer_names)
+      selectInput("nirChannel", "NIR Channel", choices = layer_names, selected = layer_names[4])
     })
   })
 
@@ -167,5 +200,27 @@ server <- function(input, output, session) {
   })
 }
 
+# Function to calculate indices (placeholder, please implement the actual indices)
+calculate_indices <- function(red, green, blue, nir, indices) {
+  index_stack <- rast()
+
+  if ("NDVI" %in% indices) {
+    ndvi <- (nir - red) / (nir + red)
+    names(ndvi) <- "NDVI"
+    index_stack <- c(index_stack, ndvi)
+  }
+
+  if ("EVI" %in% indices) {
+    evi <- 2.5 * (nir - red) / (nir + 6 * red - 7.5 * blue + 1)
+    names(evi) <- "EVI"
+    index_stack <- c(index_stack, evi)
+  }
+
+  # Add more indices calculations as needed
+
+  return(index_stack)
+}
+
 # Run the application
 shinyApp(ui = ui, server = server)
+
