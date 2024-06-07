@@ -1,11 +1,11 @@
 Package: classifieR
-Title: Image Classification for users
+Title: Image Classification for Users
 Version: 0.0.0.9000
 Authors@R: 
-    person("Konstantin", "Engelmayer", , "engelmay@uni-marburg.de", role = c("aut", "cre"),
+    person("Konstantin", "Engelmayer", email = "engelmay@uni-marburg.de", role = c("aut", "cre", "maint"),
            comment = c(ORCID = "YOUR-ORCID-ID"))
 Description: Provides tools for image classification, including feature extraction, model training, and a Shiny app for user-friendly classification.
-License: use_gpl3_license()
+License: GPL-3
 Encoding: UTF-8
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.1

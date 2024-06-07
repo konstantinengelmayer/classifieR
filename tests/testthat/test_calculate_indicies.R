@@ -1,6 +1,6 @@
 library(terra)
 # Load the test raster stack
-test <- rast("tests/testthat/rgb_cir_stack_2020.tif")
+test <- rast(system.file("extdata", "rgb_cir_stack_2020.tif", package = "classifieR"))
 
 # Define a smaller extent for cropping (xmin, xmax, ymin, ymax)
 small_extent <- ext(790500, 791000, 5276000, 5277000)

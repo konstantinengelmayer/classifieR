@@ -8,3 +8,4 @@ runApp <- function() {
   appDir <- system.file("shiny",package = "classifieR")
   shiny::runApp(appDir, display.mode = "normal")
 }
+runApp()

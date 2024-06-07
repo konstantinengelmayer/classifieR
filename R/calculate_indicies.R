@@ -167,11 +167,4 @@ calculate_indices <- function(red, green, blue, nir, indices, output_dir = NULL)
   }
 }
 
-test <- rast("C:/Users/konst/Documents/Master/bip/berchtes_gaden/data/data_lev1/rgb_cir_stack_2020.tif")
-# Define a smaller extent for cropping (xmin, xmax, ymin, ymax)
-small_extent <- ext(790500, 791000, 5276000, 5277000)
 
-# Crop the raster stack to the smaller extent
-test <- crop(test, small_extent)
-
-writeRaster(test, "tests/testthat/rgb_cir_stack_2020.tif")
